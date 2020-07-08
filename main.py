@@ -15,13 +15,42 @@ from tqdm import tqdm
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.keras import Model
+from keras import backend as K
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.layers import Conv2D, Dense, Flatten, Lambda, Input
+from tensorflow.keras.applications import ResNet50V2
 
 # Predefining Parameters
 LEARNING_RATE = 0.00001
 IMAGE_SHAPE = (128, 128, 3)
 EPOCHS = 5
+
+def create_model():
+    input_A = Input(shape=IMAGE_SHAPE)
+    input_B = Input(shape=IMAGE_SHAPE)
+
+    preTrained = ResNet50V2(weights='imagenet', include_top=False, input_shape=IMAGE_SHAPE)
+
+    for l in preTrained.layers[:-9]:
+        l.trainable = False
+
+    flatten1 = Flatten()(preTrained.layers[-2].output)
+    dense1 = Dense(512, activation='relu')(flatten1)
+
+    modifiedPreTrained = Model(preTrained.input, dense1)
+
+    output_A = modifiedPreTrained(input_A)
+    output_B = modifiedPreTrained(input_B)
+
+    l = Lambda(lambda tensors: K.abs(tensors[0] - tensors[1]))
+    l_out = l([output_A, output_B])
+
+    dense2 = Dense(1024, activation='relu')(l_out)
+    output = Dense(1, activation='sigmoid')(dense2)
+
+    model = Model(inputs=[input_A, input_B], outputs=output) 
+
+    return model
 
 # loads image from path, rbg channels
 def load_image(path):
@@ -49,6 +78,8 @@ if len(sys.argv) < 2:
 
 if "-train" in sys.argv:
     print("TRAINING")
+    model = create_model()
+    print(model.summary())
     
 elif "-predict" in sys.argv:
     print("PREDICT")
