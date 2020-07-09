@@ -120,7 +120,7 @@ class ImagePreprocessor():
                 new_image = self.resize_image(new_image)
                 cv2.imwrite(path.join(self.new_dir, str(COUNTER) + ".png"), new_image)
 
-                os.rename(img_path, path.join(self.dir, folder, str(1000+COUNTER) + ".png"))
+                os.rename(img_path, path.join(self.dir, folder, str(COUNTER) + ".png"))
 
                 COUNTER = COUNTER + 1
             # Allways append the current counter of images after done in a certain Folder
