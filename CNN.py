@@ -12,14 +12,14 @@ from tqdm import tqdm
 
 # Import actual Maching Learning Stuff
 import tensorflow as tf
-import tensorflow.keras as keras
-from tensorflow.keras import Model
+from keras import Model
 from keras import backend as K
-from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.layers import Conv2D, Dense, Flatten, Lambda, Input
-from tensorflow.keras.applications import ResNet50V2
-from tensorflow.keras.losses import BinaryCrossentropy
-from tensorflow.keras.optimizers import Adam
+from keras.callbacks import TensorBoard
+from keras.layers import Conv2D, Dense, Flatten, Lambda, Input
+from keras.applications import ResNet50V2
+from keras.applications.vgg16 import VGG16
+from keras.losses import BinaryCrossentropy
+from keras.optimizers import Adam
 
 
 from ImagePreprocessor import IMAGE_SHAPE
@@ -42,13 +42,13 @@ class CNN():
         input_A = Input(shape=IMAGE_SHAPE)
         input_B = Input(shape=IMAGE_SHAPE)
 
-        preTrained = ResNet50V2(weights='imagenet', include_top=False, input_shape=IMAGE_SHAPE)
+        preTrained = VGG16(include_top=False, weights='imagenet', input_shape=IMAGE_SHAPE)
 
-        for l in preTrained.layers[:-9]:
+        for l in preTrained.layers[:-3]:
             l.trainable = False
 
         flatten1 = Flatten()(preTrained.layers[-2].output)
-        dense1 = Dense(1024, activation='relu')(flatten1)
+        dense1 = Dense(512, activation='relu')(flatten1)
 
         modifiedPreTrained = Model(preTrained.input, dense1)
 
