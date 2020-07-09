@@ -1,8 +1,7 @@
 # Import System Bullshit
 import sys
 import os.path as path
-
-
+import cv2
 
 from ImagePreprocessor import ImagePreprocessor
 from CNN import CNN
@@ -19,8 +18,17 @@ if len(sys.argv) < 2:
 
 MODEL_NAME = "cnnV1"
 
-ipp = ImagePreprocessor("images", "preprocessed_images", path.join("pretrained_models", "haarcascade_frontalcatface.xml"))
+ipp = ImagePreprocessor("images", "preprocessed_images", path.join("pretrained_models", "haarcascade_frontalcatface_extended.xml"))
 cnn = CNN(MODEL_NAME)
+
+#img = ipp.load_image(path.join("images", "cat1", "photo_2020-06-15_20-23-59.jpg"))
+#img = ipp.load_image(path.join("images", "cat2", "photo_2020-06-17_17-57-11.jpg"))
+#img = ipp.load_image(path.join("images", "cat2", "photo_2020-06-17_17-57-27.jpg"))
+
+#img = ipp.load_image(path.join("images", "cat1", "photo_2020-06-15_20-23-37.jpg"))
+#img = ipp.load_image(path.join("images", "cat1", "photo_2020-06-15_20-23-31.jpg"))
+#ipp.detect_face(img)
+
 
 if "-train" in sys.argv:
     print("TRAINING")
