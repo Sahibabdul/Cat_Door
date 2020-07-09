@@ -8,7 +8,7 @@ import os
 import os.path as path
 
 
-IMAGE_SHAPE = (128, 128, 3)
+IMAGE_SHAPE = (64, 64, 3)
 SCALE = 1.02
 NEIGHBORS = 1
 
@@ -119,6 +119,8 @@ class ImagePreprocessor():
                 new_image = self.extract_face(new_image)
                 new_image = self.resize_image(new_image)
                 cv2.imwrite(path.join(self.new_dir, str(COUNTER) + ".png"), new_image)
+
+                os.rename(img_path, path.join(self.dir, folder, str(COUNTER) + ".png"))
 
                 COUNTER = COUNTER + 1
             # Allways append the current counter of images after done in a certain Folder
