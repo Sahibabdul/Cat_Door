@@ -2,12 +2,17 @@ import pandas as pd
 import numpy as np
 import cv2
 from tqdm import tqdm
+import imutils
 
 import os
 import os.path as path
 
 
 IMAGE_SHAPE = (128, 128, 3)
+SCALE = 1.02
+NEIGHBORS = 1
+
+
 class ImagePreprocessor():
 
     def __init__ (self, dir, new_dir, pretrained_path):
@@ -26,6 +31,14 @@ class ImagePreprocessor():
 
     # ---------- IMAGE LOADING ----------
 
+    def show_image(self, image):
+        cv2.imshow('image',image)
+        cv2.waitKey(0)
+
+    def resize_image(self, image):
+        height, width, channel = IMAGE_SHAPE
+        return cv2.resize(image, (width, height), interpolation=cv2.INTER_CUBIC)
+
     # loads image from path, rbg channels
     def load_image(self, image_path):
         # load image from path
@@ -38,11 +51,9 @@ class ImagePreprocessor():
 
     # loads and resizes an image to fir IMAGE_SHAPE
     def process_image(self, image_path):
-        height, width, channel = IMAGE_SHAPE
-
         # load and resize image
         image = self.load_image(image_path)
-        image = cv2.resize(image, (width, height), interpolation=cv2.INTER_CUBIC)
+        image = self.resize_image(image)
         return image    
 
     def load_train_data(self):
@@ -62,6 +73,32 @@ class ImagePreprocessor():
             
 
     # -------- PREPROCESSING --------
+    def detect_face(self, image):
+        for angle in range(0, 60, 10):
+            img = imutils.rotate_bound(image, angle - 30)
+            gray_scale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            
+            faces = self.detector.detectMultiScale(gray_scale, SCALE, NEIGHBORS)
+            for (x,y,w,h) in faces:
+                img = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+            
+            self.show_image(img)
+
+    def extract_face(self, image):
+        best_im, best_w = image, 0
+
+        for angle in range(0, 60, 10):
+            img = imutils.rotate_bound(image, angle - 30)
+            gray_scale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            faces = self.detector.detectMultiScale(gray_scale, SCALE, NEIGHBORS)
+            for (x,y,w,h) in faces:
+                if w > best_w:
+                    best_im, best_w = img[y:y+h, x:x+w], w
+
+        return best_im
+
+
     def preprocess_all_images(self):
         # counter to uniquely identify images
         COUNTER = 0
@@ -78,8 +115,10 @@ class ImagePreprocessor():
             # replace them with resized ones, every image gets an unique id (uids go from 0 to n)
             for image in tqdm(os.listdir(path.join(self.dir, folder))):
                 img_path = self.get_image_path(folder, image)
-                processed_image = self.process_image(img_path)
-                cv2.imwrite(path.join(self.new_dir, str(COUNTER) + ".png"), processed_image)
+                new_image = self.load_image(img_path)
+                new_image = self.extract_face(new_image)
+                new_image = self.resize_image(new_image)
+                cv2.imwrite(path.join(self.new_dir, str(COUNTER) + ".png"), new_image)
 
                 COUNTER = COUNTER + 1
             # Allways append the current counter of images after done in a certain Folder
@@ -106,3 +145,5 @@ class ImagePreprocessor():
         triplets = pd.DataFrame(triplets, columns=['IMAGE_A','IMAGE_B','Label'])
         print(triplets)
         triplets.to_csv("triplets.csv", index=False, header=True)
+
+    
