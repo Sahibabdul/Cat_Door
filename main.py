@@ -1,24 +1,8 @@
 # Import System Bullshit
 import sys
-import os
 import os.path as path
-import time
-import pickle
 
-# Import Math and Image Processing
-import pandas as pd
-import numpy as np
-import cv2
-from tqdm import tqdm
 
-# Import actual Maching Learning Stuff
-import tensorflow as tf
-import tensorflow.keras as keras
-from tensorflow.keras import Model
-from keras import backend as K
-from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.layers import Conv2D, Dense, Flatten, Lambda, Input
-from tensorflow.keras.applications import ResNet50V2
 
 from ImagePreprocessor import ImagePreprocessor
 from CNN import CNN
