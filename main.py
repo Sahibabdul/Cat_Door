@@ -52,19 +52,7 @@ def create_model():
 
     return model
 
-# loads image from path, rbg channels
-def load_image(path):
-    # load image from path
-    return cv2.imread(path, cv2.COLOR_BGR2RGB)
 
-# loads and resizes an image to fir IMAGE_SHAPE
-def process_image(path):
-    height, width, channels = IMAGE_SHAPE
-    
-    # load and resize image
-    image = load_image(path)
-    image = cv2.resize(image, (width, height), interpolation=cv2.INTER_CUBIC)
-    return image
 
 # Defining functions to call when starting the programm
     # Traning --> training the Neural Network
