@@ -22,6 +22,8 @@ from keras.losses import BinaryCrossentropy
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 
+from sklearn.metrics import roc_curve, auc
+import matplotlib.pyplot as plt
 
 from ImagePreprocessor import IMAGE_SHAPE
 
@@ -82,6 +84,22 @@ class CNN():
         mc = ModelCheckpoint(self.MODEL_PATH, monitor='val_acc', mode='max', save_best_only=True, verbose=1)
         self.model.fit(X, Y, validation_split=0.2, epochs=EPOCHS, shuffle=True, batch_size=32, callbacks=[mc])
 
-    def predict(self, X, Y):
-        predictions = pd.DataFrame(self.model.predict(X, verbose=1))
+    def predict(self, X, Y_true):
+        Y_pred = self.model.predict(X, verbose=1)
+
+        fpr, tpr, tresholds = roc_curve(Y_true, Y_pred)
+        area = auc(fpr, tpr)
+
+        plt.figure(1)
+        plt.plot([0,1],[0,1], 'k--')
+        plt.plot(fpr, tpr, label=f'{self.MODEL_NAME} (area = {area:.3f})')
+
+        plt.xlabel('False positive rate')
+        plt.ylabel('True positive rate')
+        plt.title('ROC curve')
+        plt.legend(loc='best')
+
+        plt.show()
+
+        predictions = pd.DataFrame(Y_pred)
         predictions.to_csv("predictions.csv")
