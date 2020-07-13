@@ -14,13 +14,12 @@ from tqdm import tqdm
 import tensorflow as tf
 from keras import Model
 from keras import backend as K
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard,ModelCheckpoint,EarlyStopping
 from keras.layers import Conv2D, Dense, Flatten, Lambda, Input
 from keras.applications import ResNet50V2
 from keras.applications.vgg16 import VGG16
 from keras.losses import BinaryCrossentropy
 from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
 
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
@@ -79,10 +78,10 @@ class CNN():
         self.model.load_weights(self.MODEL_PATH)
 
     def train(self, X, Y): 	
-        
-
+        tb_logs=TensorBoard(log_dir=f"logs/{self.MODEL_NAME}")
+        es=EarlyStopping(monitor="val_acc",patience=3,mode=max)
         mc = ModelCheckpoint(self.MODEL_PATH, monitor='val_acc', mode='max', save_best_only=True, verbose=1)
-        self.model.fit(X, Y, validation_split=0.2, epochs=EPOCHS, shuffle=True, batch_size=32, callbacks=[mc])
+        self.model.fit(X, Y, validation_split=0.2, epochs=EPOCHS, shuffle=True, batch_size=32, callbacks=[mc,tb_logs,es])
 
     def predict(self, X, Y_true):
         Y_pred = self.model.predict(X, verbose=1)
@@ -90,16 +89,16 @@ class CNN():
         fpr, tpr, tresholds = roc_curve(Y_true, Y_pred)
         area = auc(fpr, tpr)
 
-        plt.figure(1)
-        plt.plot([0,1],[0,1], 'k--')
-        plt.plot(fpr, tpr, label=f'{self.MODEL_NAME} (area = {area:.3f})')
+        #fig=plt.figure(1)
+        #plt.plot([0,1],[0,1], 'k--')
+        #plt.plot(fpr, tpr, label=f'{self.MODEL_NAME} (area = {area:.3f})')
 
-        plt.xlabel('False positive rate')
-        plt.ylabel('True positive rate')
-        plt.title('ROC curve')
-        plt.legend(loc='best')
+        #plt.xlabel('False positive rate')
+        #plt.ylabel('True positive rate')
+        #plt.title('ROC curve')
+        #plt.legend(loc='best')
 
-        plt.show()
+        #plt.savefig(f"{self.MODEL_NAME}_ROC.png",dpi=fig.dpi)
 
         predictions = pd.DataFrame(Y_pred)
         predictions.to_csv("predictions.csv")

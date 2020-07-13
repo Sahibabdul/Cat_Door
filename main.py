@@ -16,7 +16,7 @@ if len(sys.argv) < 2:
     print("python main.py -[train|predict|preprocess]")
     sys.exit(0)
 
-MODEL_NAME = "cnnV2"
+MODEL_NAME = "cnn_og64"
 
 ipp = ImagePreprocessor("images", "preprocessed_images", path.join("pretrained_models", "haarcascade_frontalcatface_extended.xml"))
 cnn = CNN(MODEL_NAME)
