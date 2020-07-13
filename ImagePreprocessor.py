@@ -63,8 +63,8 @@ class ImagePreprocessor():
         
         print ("\nLoading Images:")
         for _,row in tqdm(triplets.iterrows()):
-            image_A = self.load_image(path.join(self.new_dir, str(row.at['IMAGE_A']) + ".png"))
-            image_B = self.load_image(path.join(self.new_dir, str(row.at['IMAGE_B']) + ".png"))
+            image_A = self.load_image(path.join(self.new_dir, str(row.at['IMAGE_A']) + ".png"))/256
+            image_B = self.load_image(path.join(self.new_dir, str(row.at['IMAGE_B']) + ".png"))/256
             
             Input_A.append(image_A)
             Input_B.append(image_B)
@@ -120,7 +120,7 @@ class ImagePreprocessor():
                 new_image = self.resize_image(new_image)
                 cv2.imwrite(path.join(self.new_dir, str(COUNTER) + ".png"), new_image)
 
-                os.rename(img_path, path.join(self.dir, folder, str(COUNTER) + ".png"))
+                os.rename(img_path, path.join(self.dir, folder, "original_" + str(COUNTER) + ".png"))
 
                 COUNTER = COUNTER + 1
             # Allways append the current counter of images after done in a certain Folder
@@ -136,6 +136,7 @@ class ImagePreprocessor():
                 for j in range(low, high):
                     if not i == j:
                         triplets.append([i, j, 1])
+                        
             
                 for j in range (0, low):
                     triplets.append([i, j, 0])
