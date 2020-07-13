@@ -42,7 +42,7 @@ elif "-predict" in sys.argv:
 
     X, Y = ipp.load_train_data()
     cnn.predict(X, Y)
-
+    
 elif "-preprocess" in sys.argv:
     print("PREPROCESS")
 
